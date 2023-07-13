@@ -1,0 +1,67 @@
+<html>
+
+<head>
+  <title>Kibana HAR Decoder</title>
+  <script src="https://unpkg.com/fflate"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fflate/umd/index.js"></script>
+</head>
+
+<body>
+  <h1>Kibana HAR Decoder</h1>
+  <input id="file-input" placeholder="Choose HAR file" type="file">
+  <button id="decode">Decode</button>
+  <script>
+    const dataUriPrefix = "data:text/plain;base64,";
+
+    const decodeIndividualResponse = (individualResponse) =>
+      fetch(dataUriPrefix + individualResponse) // pass in some data-uri
+        .then((response) => response.arrayBuffer())
+        .then((buf) =>
+          JSON.stringify(JSON.parse(fflate.strFromU8(fflate.unzlibSync(new Uint8Array(buf)))), null, 2)
+        );
+
+    // listen for file upload
+    const fileInput = document.getElementById('file-input');
+    const decodeButton = document.getElementById('decode');
+    decodeButton.addEventListener('click', handleFile, false);
+
+    function handleFile() {
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onload = async function (event) {
+        const data = event.target.result;
+        const HAR = JSON.parse(data);
+
+        for (const entry of HAR.log.entries) {
+          if (
+            entry.request.url.includes("bsearch?compress=true") &&
+            entry.response.content.text
+          ) {
+            const httpResponse = atob(entry.response.content.text)
+            const individualBSearchResponses = httpResponse.split('\n').filter(Boolean);
+            const decodedBSearchResponses = [];
+            for (const bsearchResponse of individualBSearchResponses) {
+              decodedBSearchResponses.push(await decodeIndividualResponse(bsearchResponse));
+            }
+            entry.response.content.text = btoa(decodedBSearchResponses.join('\n'));
+          }
+        }
+
+        const HARString = JSON.stringify(HAR, null, 2);
+        const blob = new Blob([HARString], {
+          type: "text/plain;charset=utf-8"
+        });
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'decoded.har';
+        link.textContent = 'Download decoded HAR';
+        document.body.appendChild(link);
+      }
+      reader.readAsText(file);
+    }
+  </script>
+</body>
+
+</html>
