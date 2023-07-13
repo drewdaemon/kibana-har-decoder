@@ -7,9 +7,16 @@
 </head>
 
 <body>
-  <h1>Kibana HAR Decoder</h1>
-  <input id="file-input" placeholder="Choose HAR file" type="file">
-  <button id="decode">Decode</button>
+  <h1>Kibana HAR Decompressor</h1>
+  <div>
+    <input id="file-input" placeholder="Choose HAR file" type="file">
+  </div>
+  <br>
+  <div>
+    <button id="decode">Decompress</button>
+  </div>
+  <br>
+  <div id="link-container"></div>
   <script>
     const dataUriPrefix = "data:text/plain;base64,";
 
@@ -20,12 +27,14 @@
           JSON.stringify(JSON.parse(fflate.strFromU8(fflate.unzlibSync(new Uint8Array(buf)))), null, 2)
         );
 
-    // listen for file upload
+    const linkContainer = document.getElementById("link-container")
     const fileInput = document.getElementById('file-input');
     const decodeButton = document.getElementById('decode');
     decodeButton.addEventListener('click', handleFile, false);
 
     function handleFile() {
+      linkContainer.innerText = 'Loading...';
+
       const file = fileInput.files[0];
       const reader = new FileReader();
       reader.onload = async function (event) {
@@ -57,7 +66,8 @@
         link.href = url;
         link.download = 'decoded.har';
         link.textContent = 'Download decoded HAR';
-        document.body.appendChild(link);
+        linkContainer.innerText = '';
+        linkContainer.appendChild(link);
       }
       reader.readAsText(file);
     }
