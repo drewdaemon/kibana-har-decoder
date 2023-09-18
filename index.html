@@ -65,7 +65,7 @@
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = file.name + 'decoded.har';
+        link.download = file.name.replace(/.har$/, '') + 'decoded.har';
         link.textContent = 'Download decoded HAR';
         linkContainer.innerText = '';
         linkContainer.appendChild(link);
