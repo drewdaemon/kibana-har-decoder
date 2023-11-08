@@ -48,10 +48,11 @@
           ) {
             const httpResponse = atob(entry.response.content.text)
             const individualBSearchResponses = httpResponse.split('\n').filter(Boolean);
-            const decodedBSearchResponses = [];
+            const decodedBSearchPromises = [];
             for (const bsearchResponse of individualBSearchResponses) {
-              decodedBSearchResponses.push(await decodeIndividualResponse(bsearchResponse));
+              decodedBSearchPromises.push( decodeIndividualResponse(bsearchResponse) );
             }
+            const decodedBSearchPromises = await Promise.all( decodedBSearchPromises );
             entry.response.content.text = btoa(decodedBSearchResponses.join('\n'));
           }
         }
@@ -64,7 +65,7 @@
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'decoded.har';
+        link.download = file.name.replace(/.har$/, '') + 'decoded.har';
         link.textContent = 'Download decoded HAR';
         linkContainer.innerText = '';
         linkContainer.appendChild(link);
