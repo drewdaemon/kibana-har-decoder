@@ -52,7 +52,7 @@
             for (const bsearchResponse of individualBSearchResponses) {
               decodedBSearchPromises.push( decodeIndividualResponse(bsearchResponse) );
             }
-            const decodedBSearchPromises = await Promise.all( decodedBSearchPromises );
+            const decodedBSearchResponses = await Promise.all( decodedBSearchPromises );
             entry.response.content.text = btoa(decodedBSearchResponses.join('\n'));
           }
         }
