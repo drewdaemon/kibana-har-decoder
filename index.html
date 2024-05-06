@@ -53,7 +53,7 @@
               decodedBSearchPromises.push( decodeIndividualResponse(bsearchResponse) );
             }
             const decodedBSearchResponses = await Promise.all( decodedBSearchPromises );
-            entry.response.content.text = btoa(decodedBSearchResponses.join('\n'));
+            entry.response.content.text = btoa(unescape(encodeURIComponent(decodedBSearchResponses.join('\n'))));
           }
         }
 
