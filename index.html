@@ -2,8 +2,11 @@
 
 <head>
   <title>Kibana HAR Decoder</title>
-  <script src="https://unpkg.com/fflate"></script>
-  <script src="https://cdn.jsdelivr.net/npm/fflate/umd/index.js"></script>
+  <script src="https://unpkg.com/fflate"
+    integrity="sha384-DT0Ls0mO7JmjTnT+oBuMhEJzYJO1zUqzuuMXNdnOmOQRIpN2BgSjvBV/j50NngIT"
+    crossorigin="anonymous"></script>
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'unsafe-inline'; connect-src 'self' data:;">
 </head>
 
 <body>
@@ -50,9 +53,9 @@
             const individualBSearchResponses = httpResponse.split('\n').filter(Boolean);
             const decodedBSearchPromises = [];
             for (const bsearchResponse of individualBSearchResponses) {
-              decodedBSearchPromises.push( decodeIndividualResponse(bsearchResponse) );
+              decodedBSearchPromises.push(decodeIndividualResponse(bsearchResponse));
             }
-            const decodedBSearchResponses = await Promise.all( decodedBSearchPromises );
+            const decodedBSearchResponses = await Promise.all(decodedBSearchPromises);
             entry.response.content.text = btoa(unescape(encodeURIComponent(decodedBSearchResponses.join('\n'))));
           }
         }
